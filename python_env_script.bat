@@ -1,6 +1,7 @@
 @echo off
 setlocal
 
+REM Python Installation Section
 set PY_VERSION=3.13.3
 set PY_INSTALLER=python-%PY_VERSION%-amd64.exe
 set PY_URL=https://www.python.org/ftp/python/3.13.3/python-3.13.3-amd64.exe
@@ -58,5 +59,37 @@ IF %ERRORLEVEL% EQU 0 (
 REM Step 5: Launch Jupyter
 echo Launching Jupyter Notebook...
 start jupyter notebook
+
+REM MiKTeX Installation Section (MiKTeX)
+set download_url=https://miktex.org/download/ctan/systems/win32/miktex/setup/windows-x64/basic-miktex-24.1-x64.exe
+
+REM Step 6: Check if MiKTeX is installed by checking for the "latex" command
+where latex >nul 2>nul
+if %errorlevel% equ 0 (
+    echo MiKTeX is already installed.
+    goto :end
+)
+
+REM MiKTeX is not installed, so we proceed to download and install it
+echo MiKTeX is not installed. Proceeding with the installation...
+
+REM Step 7: Download MiKTeX installer
+echo Downloading MiKTeX installer...
+powershell -Command "Invoke-WebRequest -Uri %download_url% -OutFile miktex-setup-x64.exe"
+
+REM Step 8: Install MiKTeX
+echo Installing MiKTeX...
+start /wait miktex-setup-x64.exe --install --verbose --global
+
+REM Step 9: Clean up by deleting the installer
+echo Cleaning up the installer...
+del miktex-setup-x64.exe
+
+REM Step 10: Verify MiKTeX installation
+echo Verifying MiKTeX installation...
+latex --version
+
+:end
+echo Installation or check completed.
 pause
 endlocal
