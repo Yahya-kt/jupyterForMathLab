@@ -87,7 +87,31 @@ del miktex-setup-x64.exe
 
 REM Step 10: Verify MiKTeX installation
 echo Verifying MiKTeX installation...
-latex --version
+where miktex-console >nul 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+    echo MiKTeX installation failed. Exiting...
+    pause
+    exit /b
+)
+echo MiKTeX installed successfully.
+
+:: Check if pandoc is installed
+where pandoc >nul 2>&1
+if %errorlevel%==0 (
+    echo Pandoc is already installed.
+) else (
+    echo Pandoc is not installed. Installing now...
+
+    :: Check if curl is available, fallback to powershell if not
+    where curl >nul 2>&1
+    IF %ERRORLEVEL% NEQ 0 (
+        powershell -Command "Invoke-WebRequest -Uri https://github.com/jgm/pandoc/releases/download/3.6.4/pandoc-3.6.4-windows-x86_64.msi -OutFile pandoc.msi"
+    ) ELSE (
+        curl -L -o "pandoc.msi" https://github.com/jgm/pandoc/releases/download/3.6.4/pandoc-3.6.4-windows-x86_64.msi
+    )
+    msiexec /i "pandoc.msi" /quiet /norestart
+    del pandoc.msi
+)
 
 :end
 echo Installation or check completed.
